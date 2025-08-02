@@ -1,9 +1,6 @@
-import React, { useState } from 'react';
 import styled from '@emotion/native';
 
-const Header = () => {
-  const [activeTab, setActiveTab] = useState('hope');
-
+const Header = ({ activeTab, setActiveTab }) => {
   return (
     <Container>
       <BackButton>

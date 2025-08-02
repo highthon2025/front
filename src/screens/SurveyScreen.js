@@ -4,6 +4,7 @@ import {
   SafeAreaView,
   ScrollView,
   View,
+  TextInput,
 } from 'react-native';
 import { router } from 'expo-router';
 import { SurveyHeader } from '../components/survey/SurveyHeader';
@@ -17,6 +18,11 @@ export default function SurveyScreen() {
   const [selectedOption, setSelectedOption] = useState(null);
   const [selectedTrauma, setSelectedTrauma] = useState(null);
   const [selectedSituation, setSelectedSituation] = useState(null);
+  
+  // 직접 입력 텍스트 상태
+  const [customGoal, setCustomGoal] = useState('');
+  const [customTrauma, setCustomTrauma] = useState('');
+  const [customSituation, setCustomSituation] = useState('');
 
   const firstStepOptions = [
     '직접작성 할래요!',
@@ -45,18 +51,27 @@ export default function SurveyScreen() {
   const handleOptionSelect = (index) => {
     if (currentStep === 1) {
       setSelectedOption(index);
+      if (index !== 0) { // "직접작성할래요"가 아닌 경우 텍스트 초기화
+        setCustomGoal('');
+      }
     }
   };
 
   const handleTraumaSelect = (index) => {
     if (currentStep === 2) {
       setSelectedTrauma(index);
+      if (index !== 0) { // "직접작성할래요"가 아닌 경우 텍스트 초기화
+        setCustomTrauma('');
+      }
     }
   };
 
   const handleSituationSelect = (index) => {
     if (currentStep === 3) {
       setSelectedSituation(index);
+      if (index !== 0) { // "직접작성할래요"가 아닌 경우 텍스트 초기화
+        setCustomSituation('');
+      }
     }
   };
 
@@ -65,14 +80,20 @@ export default function SurveyScreen() {
       setCurrentStep(2);
       // 두 번째 단계로 이동할 때 선택 상태 초기화
       setSelectedTrauma(null);
+      setCustomTrauma('');
     } else if (currentStep === 2) {
       setCurrentStep(3);
       // 세 번째 단계로 이동할 때 선택 상태 초기화
       setSelectedSituation(null);
+      setCustomSituation('');
     } else if (currentStep === 3) {
-      console.log('First step selected:', selectedOption);
-      console.log('Second step selected trauma:', selectedTrauma);
-      console.log('Third step selected situation:', selectedSituation);
+      const goalValue = selectedOption === 0 ? customGoal : firstStepOptions[selectedOption];
+      const traumaValue = selectedTrauma === 0 ? customTrauma : secondStepOptions[selectedTrauma];
+      const situationValue = selectedSituation === 0 ? customSituation : thirdStepOptions[selectedSituation];
+      
+      console.log('First step selected:', goalValue);
+      console.log('Second step selected trauma:', traumaValue);
+      console.log('Third step selected situation:', situationValue);
       // 설문 완료 - 홈으로 이동
       router.push('/');
     }
@@ -112,6 +133,17 @@ export default function SurveyScreen() {
                 selectedOption={selectedOption}
                 onOptionSelect={handleOptionSelect}
               />
+              
+              {selectedOption === 0 && (
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="목표를 직접 입력해주세요"
+                  value={customGoal}
+                  onChangeText={setCustomGoal}
+                  multiline
+                  numberOfLines={3}
+                />
+              )}
             </>
           ) : currentStep === 2 ? (
             <>
@@ -125,6 +157,17 @@ export default function SurveyScreen() {
                 selectedOption={selectedTrauma}
                 onOptionSelect={handleTraumaSelect}
               />
+              
+              {selectedTrauma === 0 && (
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="두려움이나 트라우마를 직접 입력해주세요"
+                  value={customTrauma}
+                  onChangeText={setCustomTrauma}
+                  multiline
+                  numberOfLines={3}
+                />
+              )}
             </>
           ) : (
             <>
@@ -138,6 +181,17 @@ export default function SurveyScreen() {
                 selectedOption={selectedSituation}
                 onOptionSelect={handleSituationSelect}
               />
+              
+              {selectedSituation === 0 && (
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="현재 상황을 직접 입력해주세요"
+                  value={customSituation}
+                  onChangeText={setCustomSituation}
+                  multiline
+                  numberOfLines={3}
+                />
+              )}
             </>
           )}
         </ScrollView>
@@ -145,9 +199,11 @@ export default function SurveyScreen() {
         <NextButton 
           onPress={handleNext}
           disabled={
-            currentStep === 1 ? selectedOption === null : 
-            currentStep === 2 ? selectedTrauma === null :
-            selectedSituation === null
+            currentStep === 1 ? 
+              (selectedOption === null || (selectedOption === 0 && customGoal.trim() === '')) : 
+            currentStep === 2 ? 
+              (selectedTrauma === null || (selectedTrauma === 0 && customTrauma.trim() === '')) :
+              (selectedSituation === null || (selectedSituation === 0 && customSituation.trim() === ''))
           }
           title={currentStep === 3 ? "선택완료" : "다음으로"}
         />
@@ -170,5 +226,25 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingBottom: 20,
+  },
+  textInput: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    padding: 16,
+    marginTop: 15,
+    fontSize: 16,
+    color: '#333',
+    textAlignVertical: 'top',
+    minHeight: 80,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
 });

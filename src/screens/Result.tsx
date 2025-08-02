@@ -329,9 +329,6 @@ const Label = styled.Text`
   background-color: ${(props: any) => LABEL_BG_COLORS[props.type] || '#ccc'};
   color: #000;
   padding: 4px 8px;
-  top: 90%;
-  left: 10%;
-  position: absolute;
   font-size: 12px;
   border-radius: 6px;
   align-self: flex-start;
@@ -389,12 +386,14 @@ const EmotionCard = styled.View`
   elevation: 2;
   height: ${EMOTION_CARD_HEIGHT}px;
   margin-bottom: ${EMOTION_CARD_MARGIN_BOTTOM}px;
+  justify-content: space-between;
 `;
 
 const EmotionText = styled.Text`
   font-size: 15px;
   font-weight: bold;
   margin-bottom: 8px;
+  flex: 1;
 `;
 
 

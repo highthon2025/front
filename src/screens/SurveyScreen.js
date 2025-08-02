@@ -93,6 +93,24 @@ export default function SurveyScreen() {
         const resultData = response.data;
         console.log('응답 데이터:', resultData);
         
+        // 데이터베이스에 결과 저장
+        try {
+          const saveResponse = await axios.post(
+            'https://port-0-trauma-backend-mdueo4dva1d77ce5.sel5.cloudtype.app/db/',
+            resultData,
+            {
+              timeout: 10000,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+          console.log('데이터베이스 저장 성공:', saveResponse.data);
+        } catch (saveError) {
+          console.error('데이터베이스 저장 실패:', saveError);
+          // 저장 실패해도 결과 화면은 표시
+        }
+        
         // 응답 데이터 구조 검증 및 정규화
         const normalizedData = {
           ...resultData,

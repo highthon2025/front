@@ -46,14 +46,14 @@ export default function HomeScreen() {
         }));
         setCategories(formattedCategories);
         console.log(data)
-        // 첫 번째 항목 todos 포맷팅 (필요하면 변경)
+        // 첫 번째 항목 todos 포맷팅 (API 응답 구조에 맞게 수정)
         if (data.length > 0 && data[0].todos) {
           const formattedTodos = data[0].todos.map(todo => ({
             id: todo.id,
-            todo_text: todo.todo_text || todo.title || '', // API 필드명 맞게 수정
+            todo_text: todo.todo_text || '', // API 필드명 그대로 사용
             todo_category: todo.todo_category || '',
             order_seq: todo.order_seq || 0,
-            completed: false, // API에 완료 여부가 있으면 맞게 처리
+            completed: todo.is_completed || false, // API에서 is_completed 필드 사용
           }));
           setTodoItems(formattedTodos);
         }
@@ -154,7 +154,7 @@ export default function HomeScreen() {
         <WeekDays weekDays={weekDays} onSelectDay={goToSpecificDay} />
         <Greeting />
         <PastRecords categories={categories} />
-        <ScheduleHeader title={`${userName || '사용자'}님의 "OOO"을 위해서`} date={formatDate(currentDate)} />
+        <ScheduleHeader title={`${userName || '사용자'}님의 "성공"을 위해서`} date={formatDate(currentDate)} />
         <TodoList items={todoItems} onToggleComplete={toggleTodoComplete} />
       </ScrollView>
       <FloatingButton onPress={() => router.push('/survey')} />

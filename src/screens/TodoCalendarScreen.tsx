@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { exportTodosToICS } from '../utils/exportICS';
+import Svg, { Path } from 'react-native-svg';
 
 interface Todo {
   id: string;
@@ -97,6 +98,11 @@ const [todoData, setTodoData] = useState(groupedTodos);
     router.back();
   };
 
+  // 홈 화면으로 이동
+  const handleHomePress = () => {
+    router.push('/home');
+  };
+
   const handlePrevMonth = () => {
     if (currentMonth === 1) {
       setCurrentMonth(12);
@@ -170,7 +176,22 @@ const [todoData, setTodoData] = useState(groupedTodos);
           <Text style={styles.backText}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.title}>To-do List</Text>
-        <View style={styles.placeholder} />
+        <TouchableOpacity onPress={handleHomePress} style={styles.homeButton}>
+          <Svg width="14" height="16" viewBox="0 0 14 16" fill="none">
+            <Path 
+              d="M9.16671 15V9.1051C9.16671 8.90967 9.09062 8.72225 8.95517 8.58406C8.81973 8.44587 8.63603 8.36824 8.44449 8.36824H5.5556C5.36405 8.36824 5.18035 8.44587 5.04491 8.58406C4.90947 8.72225 4.83337 8.90967 4.83337 9.1051V15" 
+              stroke="black" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+            <Path 
+              d="M0.5 6.89451C0.49995 6.68014 0.545741 6.46833 0.63418 6.27387C0.722619 6.07941 0.851576 5.90697 1.01206 5.76859L6.06761 1.34815C6.32832 1.12334 6.65865 1 7 1C7.34135 1 7.67168 1.12334 7.93239 1.34815L12.9879 5.76859C13.1484 5.90697 13.2774 6.07941 13.3658 6.27387C13.4543 6.46833 13.5001 6.68014 13.5 6.89451V13.5263C13.5 13.9171 13.3478 14.292 13.0769 14.5684C12.806 14.8447 12.4386 15 12.0556 15H1.94444C1.56135 15 1.19395 14.8447 0.923068 14.5684C0.652182 14.292 0.5 13.9171 0.5 13.5263V6.89451Z" 
+              stroke="black" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+          </Svg>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -281,6 +302,12 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     width: 40,
+  },
+  homeButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   dateNavigator: {
     flexDirection: 'row',

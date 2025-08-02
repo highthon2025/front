@@ -8,7 +8,6 @@ export default function SplashScreen() {
   const handleStartPress = () => {
     router.push('/home');
   };
-
   return (
     <View style={styles.container}>
       <View style={styles.content}>

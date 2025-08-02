@@ -25,6 +25,20 @@ export default function RootLayout() {
           headerShown: false 
         }} 
       />
+      <Stack.Screen 
+        name="todo-calendar" 
+        options={{ 
+          title: 'Todo Calendar',
+          headerShown: false 
+        }} 
+      />
+      <Stack.Screen 
+        name="todo-date" 
+        options={{ 
+          title: 'Todo Date',
+          headerShown: false 
+        }} 
+      />
     </Stack>
   );
 }

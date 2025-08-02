@@ -9,7 +9,7 @@ const { width, height } = Dimensions.get('window');
 
 export default function SplashScreen() {
   const handleStartPress = () => {
-    router.push('/home');
+    router.push('/name-input');
   };
   return (
     <View style={styles.container}>

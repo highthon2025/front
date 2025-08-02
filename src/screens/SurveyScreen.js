@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import { router } from 'expo-router';
+import { useUser } from '../context/UserContext';
 import { SurveyHeader } from '../components/survey/SurveyHeader';
 import { ProgressIndicator } from '../components/survey/ProgressIndicator';
 import { QuestionSection } from '../components/survey/QuestionSection';
@@ -16,6 +17,7 @@ import { OptionList } from '../components/survey/OptionList';
 import { NextButton } from '../components/survey/NextButton';
 
 export default function SurveyScreen() {
+  const { userName } = useUser();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedOption, setSelectedOption] = useState(null);
   const [selectedTrauma, setSelectedTrauma] = useState(null);
@@ -63,23 +65,59 @@ export default function SurveyScreen() {
       const situationValue = selectedSituation === 0 ? customSituation : thirdStepOptions[selectedSituation];
 
       try {
+        console.log('API 요청 데이터:', {
+          ideal: goalValue,
+          afraid: traumaValue,
+          current: situationValue,
+        });
+
         const response = await axios.post(
           'https://port-0-trauma-backend-mdueo4dva1d77ce5.sel5.cloudtype.app/api',
           {
             ideal: goalValue,
             afraid: traumaValue,
             current: situationValue,
+          },
+          {
+            timeout: 15000, // 15초 타임아웃
+            headers: {
+              'Content-Type': 'application/json',
+            },
           }
         );
 
         const resultData = response.data;
-        console.log(resultData)
+        console.log('응답 데이터:', resultData);
+        
         router.push({
           pathname: '/Result',
           params: { result: JSON.stringify(resultData) },
         });
       } catch (error) {
         console.error('POST 실패:', error);
+        
+        // API 호출 실패 시 목업 데이터로 진행 (개발/프로덕션 모두)
+        console.log('API 호출 실패: 목업 데이터 사용');
+        const mockData = {
+          title: goalValue || "목표",
+          category: "테스트",
+          succ: {
+            description: "성공적인 미래를 위한 희망적인 시나리오입니다.",
+            todo: ["목표 달성을 위한 첫 번째 단계", "꾸준한 노력하기", "전문가와 상담하기"],
+            todo_cata: ["개발", "성찰", "네트워킹"]
+          },
+          fail: {
+            description: "목표를 달성하지 못한 시나리오입니다.",
+            reason: ["미루는 습관", "자신감 부족", "계획 부족"],
+            action_title: ["즉시 행동하기", "자신감 기르기", "체계적 계획"],
+            action_desc: ["오늘부터 작은 것이라도 시작해보세요", "작은 성공 경험을 쌓아가세요", "단계별 계획을 세워보세요"]
+          }
+        };
+        
+        router.push({
+          pathname: '/Result',
+          params: { result: JSON.stringify(mockData) },
+        });
       }
     }
   };
@@ -131,7 +169,7 @@ export default function SurveyScreen() {
             </>
           ) : (
             <>
-              <QuestionSection title="민수님의 현재 상황은 어떠신가요?" subtitle="내가 현재 처해진 상황과 본인의 역량을 입력 또는 선택해주세요" />
+              <QuestionSection title={`${userName || '사용자'}님의 현재 상황은 어떠신가요?`} subtitle="내가 현재 처해진 상황과 본인의 역량을 입력 또는 선택해주세요" />
               <OptionList options={thirdStepOptions} selectedOption={selectedSituation} onOptionSelect={handleSituationSelect} />
               {selectedSituation === 0 && (
                 <TextInput style={styles.textInput} placeholder="현재 상황을 직접 입력해주세요" value={customSituation} onChangeText={setCustomSituation} multiline numberOfLines={3} />

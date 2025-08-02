@@ -6,7 +6,7 @@ const { width, height } = Dimensions.get('window');
 
 export default function SplashScreen() {
   const handleStartPress = () => {
-    router.replace('/home');
+    router.replace('/name-input');
   };
 
   return (

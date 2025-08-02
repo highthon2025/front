@@ -33,6 +33,10 @@ export default function TodoDateScreen() {
     router.back();
   };
 
+  const handleHomePress = () => {
+    router.push('/home');
+  };
+
   const handlePrevDay = () => {
     // 이전 날짜로 이동 (구현 필요)
     console.log('이전 날짜로 이동');
@@ -109,7 +113,9 @@ export default function TodoDateScreen() {
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>To-do List</Text>
-        <View style={styles.placeholder} />
+        <TouchableOpacity onPress={handleHomePress} style={styles.homeButton}>
+          <Text style={styles.homeIcon}>🏠</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -186,6 +192,16 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     width: 40,
+  },
+  homeButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  homeIcon: {
+    fontSize: 20,
+    color: '#FF6122',
   },
   content: {
     flex: 1,

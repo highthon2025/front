@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from '@emotion/native';
+import { useUser } from '../../context/UserContext';
 import EmojiSad from './EmojiSadFace';
 
 interface ProgressProps {
@@ -7,10 +8,12 @@ interface ProgressProps {
 }
 
 const NProgress = ({ description }: ProgressProps) => {
+  const { userName } = useUser();
+  
   return (
     <Container>
       <HeaderText>
-        민수님의 작성기록을 바탕으로한{"\n"}
+        {userName || '사용자'}님의 작성기록을 바탕으로한{"\n"}
         <BoldText>공포적 시나리오..</BoldText>
       </HeaderText>
 

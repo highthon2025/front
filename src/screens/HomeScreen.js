@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StatusBar, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import axios from 'axios';
+import { useUser } from '../context/UserContext';
 
 // Components
 import DateNavigator from '../components/DateNavigator';
@@ -17,6 +18,7 @@ import FloatingButton from '../components/FloatingButton';
 const CATEGORY_COLORS = ['#FF6122', '#FF8D60', '#FFB399', '#FFD6A5', '#A1E3D8'];
 
 export default function HomeScreen() {
+  const { userName } = useUser();
   const [selectedDay, setSelectedDay] = useState(2);
   const [currentDate, setCurrentDate] = useState(new Date(2025, 7, 2)); // 2025년 8월 2일
   const [categories, setCategories] = useState([]);
@@ -27,7 +29,10 @@ export default function HomeScreen() {
     const fetchLatestData = async () => {
       try {
         const response = await axios.get(
-          'https://port-0-trauma-backend-mdueo4dva1d77ce5.sel5.cloudtype.app/db/latest'
+          'https://port-0-trauma-backend-mdueo4dva1d77ce5.sel5.cloudtype.app/db/latest',
+          {
+            timeout: 10000, // 10초 타임아웃
+          }
         );
         const data = response.data;
 
@@ -42,7 +47,7 @@ export default function HomeScreen() {
         setCategories(formattedCategories);
         console.log(data)
         // 첫 번째 항목 todos 포맷팅 (필요하면 변경)
-        if (data.length > 0) {
+        if (data.length > 0 && data[0].todos) {
           const formattedTodos = data[0].todos.map(todo => ({
             id: todo.id,
             todo_text: todo.todo_text || todo.title || '', // API 필드명 맞게 수정
@@ -54,6 +59,10 @@ export default function HomeScreen() {
         }
       } catch (err) {
         console.error('데이터 가져오기 실패:', err);
+        console.log('네트워크 오류로 인해 기본 데이터 사용');
+        // 네트워크 오류 시 기본 데이터 사용
+        setCategories([]);
+        setTodoItems([]);
       }
     };
 
@@ -145,7 +154,7 @@ export default function HomeScreen() {
         <WeekDays weekDays={weekDays} onSelectDay={goToSpecificDay} />
         <Greeting />
         <PastRecords categories={categories} />
-        <ScheduleHeader title={`민수님의 "OOO"을 위해서`} date={formatDate(currentDate)} />
+        <ScheduleHeader title={`${userName || '사용자'}님의 "OOO"을 위해서`} date={formatDate(currentDate)} />
         <TodoList items={todoItems} onToggleComplete={toggleTodoComplete} />
       </ScrollView>
       <FloatingButton onPress={() => router.push('/survey')} />

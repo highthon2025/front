@@ -95,7 +95,7 @@ export default function SurveyScreen() {
       console.log('Second step selected trauma:', traumaValue);
       console.log('Third step selected situation:', situationValue);
       // 설문 완료 - 홈으로 이동
-      router.push('/');
+      router.push('/home');
     }
   };
 

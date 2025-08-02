@@ -1,4 +1,7 @@
 import React from 'react';
+import Result from '../src/screens/Result';
+import HomeScreen from '../src/screens/HomeScreen';
+import SurveyScreen from '../src/screens/SurveyScreen';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 

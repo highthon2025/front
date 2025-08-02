@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StatusBar } from 'react-native';
+import { router } from 'expo-router';
 import DateNavigator from '../components/DateNavigator';
 import WeekDays from '../components/WeekDays';
 import Greeting from '../components/Greeting';
@@ -14,22 +15,31 @@ const categories = [
   { id: 3, title: "카테고리", subtitle: "제목", date: "2025.07.31", color: "#FFB399" }
 ];
 
-const todoItems = [
-  { id: 1, title: "핀터레스트로 관련 레퍼런스 10개 수집하기", time: "AM 08:20", completed: true },
-  { id: 2, title: "핀터레스트로 관련 레퍼런스 10개 수집하기", time: "AM 08:20", completed: true },
-  { id: 3, title: "핀터레스트로 관련 레퍼런스 10개 수집하기", time: "AM 08:20", completed: true },
-  { id: 4, title: "핀터레스트로 관련 레퍼런스 10개 A 집안일", time: "", completed: false }
-];
-
 export default function HomeScreen() {
   const [selectedDay, setSelectedDay] = useState(2);
   const [currentDate, setCurrentDate] = useState(new Date(2025, 7, 2)); // 8월 2일
+  const [todoItems, setTodoItems] = useState([
+    { id: 1, title: "핀터레스트로 관련 레퍼런스 10개 수집하기", time: "AM 08:20", completed: true },
+    { id: 2, title: "핀터레스트로 관련 레퍼런스 10개 수집하기", time: "AM 08:20", completed: true },
+    { id: 3, title: "핀터레스트로 관련 레퍼런스 10개 수집하기", time: "AM 08:20", completed: true },
+    { id: 4, title: "핀터레스트로 관련 레퍼런스 10개 A 집안일", time: "", completed: false }
+  ]);
 
   const formatDate = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}.${month}.${day}`;
+  };
+
+  const toggleTodoComplete = (todoId) => {
+    setTodoItems(prevItems => 
+      prevItems.map(item => 
+        item.id === todoId 
+          ? { ...item, completed: !item.completed }
+          : item
+      )
+    );
   };
 
   const goToPreviousDay = () => {
@@ -88,9 +98,9 @@ export default function HomeScreen() {
         <Greeting />
         <PastRecords categories={categories} />
         <ScheduleHeader title='민수님의 "OOO"을 위해서' date={formatDate(currentDate)} />
-        <TodoList items={todoItems} />
+        <TodoList items={todoItems} onToggleComplete={toggleTodoComplete} />
       </ScrollView>
-      <FloatingButton onPress={() => console.log("작성 버튼 클릭")} />
+      <FloatingButton onPress={() => router.push('/survey')} />
     </View>
   );
 }

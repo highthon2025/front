@@ -10,7 +10,14 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.gaga"
+      "bundleIdentifier": "com.anonymous.gaga",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "CFBundleDisplayName": "Gaga",
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -33,6 +40,11 @@
           "backgroundColor": "#ffffff"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6dd4f46b-76e2-45b5-95b1-1ddf236259f2"
+      }
+    }
   }
 }

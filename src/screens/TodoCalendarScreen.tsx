@@ -1,40 +1,56 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { exportTodosToICS } from '../utils/exportICS';
+
 
 export default function TodoCalendarScreen() {
-  const [selectedDate, setSelectedDate] = useState(2); // 기본적으로 2일 선택
+  const [selectedDate, setSelectedDate] = useState(3); // 기본적으로 2일 선택
   const [isExported, setIsExported] = useState(false); // 내보내기 상태 추가
   const [currentYear, setCurrentYear] = useState(2025); // 현재 년도
   const [currentMonth, setCurrentMonth] = useState(8); // 현재 월 (1-12)
+  const params = useLocalSearchParams();
+const initialTodos = useMemo(() => {
+  try {
+    return JSON.parse(params.todos as string) || [];
+  } catch (e) {
+    return [];
+  }
+}, [params.todos]);
 
-  // 날짜별 할일 데이터
-  const [todoData] = useState({
-    1: [],
-    2: [
-      {
-        id: 1,
-        date: '2025.08.02',
-        title: '핀터레스트로 관련 레퍼런스 10개 수집하기',
-        completed: false
-      },
-      {
-        id: 2,
-        date: '2025.08.02', 
-        title: 'B매거진 전공서적 10P 읽기',
-        completed: false
-      }
-    ],
-    3: [
-      {
-        id: 3,
-        date: '2025.08.03',
-        title: '프로젝트 회의 참석',
-        completed: false
-      }
-    ],
-    // 다른 날짜들은 빈 배열로 초기화
+// 날짜별 투두로 변환
+const groupedTodos = useMemo(() => {
+  const result = {};
+
+  const generateDailyTodos = (todo) => {
+    const [year, month, day] = todo.date.split('.').map(Number);
+    const startDate = new Date(year, month - 1, day);
+    const daysInCurrentMonth = new Date(currentYear, currentMonth, 0).getDate();
+
+    const todos = [];
+    for (let d = 1; d <= daysInCurrentMonth; d++) {
+      const todoDate = `${currentYear}.${String(currentMonth).padStart(2, '0')}.${String(d).padStart(2, '0')}`;
+      todos.push({ ...todo, date: todoDate });
+    }
+    return todos;
+  };
+
+  initialTodos.forEach((todo) => {
+    const repeatedTodos = generateDailyTodos({ ...todo, repeat: 'daily' });
+
+    repeatedTodos.forEach((rt) => {
+      const day = parseInt(rt.date.split('.')[2], 10);
+      if (!result[day]) result[day] = [];
+      result[day].push(rt);
+    });
   });
+
+  return result;
+}, [initialTodos, currentMonth, currentYear]);
+
+
+const [todoData, setTodoData] = useState(groupedTodos);
+  // 날짜별 할일 데이터
 
   // 달력 데이터 생성
   const generateCalendarDays = () => {
@@ -94,15 +110,12 @@ export default function TodoCalendarScreen() {
     setSelectedDate(1); // 월이 변경되면 1일로 초기화
   };
 
-  const handleExport = () => {
-    setIsExported(true);
-    console.log('내보내기 버튼 클릭됨');
-    
-    // 3초 후 원래 상태로 돌리기
-    setTimeout(() => {
-      setIsExported(false);
-    }, 3000);
-  };
+  const handleExport = async () => {
+  const allTodos = Object.values(todoData).flat();
+  await exportTodosToICS(allTodos);
+  setIsExported(true);
+  setTimeout(() => setIsExported(false), 3000);
+};
 
   // 선택된 날짜의 할일 가져오기
   const getSelectedDateTodos = () => {

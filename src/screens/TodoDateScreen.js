@@ -131,7 +131,7 @@ export default function TodoDateScreen() {
         {renderCalendarRow()}
 
         {/* 할일 목록 */}
-        <View style={styles.todoSection}>
+        <View style={styles.todoSection}> 
           {todoItems.map((item, index) => renderTodoItem(item, index))}
         </View>
       </ScrollView>

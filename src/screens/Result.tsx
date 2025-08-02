@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import Header from '../components/result/Header';
 import Progress from '../components/result/Progress';
 import NProgress from '../components/result/NProgress';
 import AccordionList from '../components/result/AccordionList';
-
+import axios from 'axios';
 
 const LABEL_BG_COLORS = {
   기술: '#FFF57F',
@@ -47,6 +47,7 @@ export default function Result() {
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
+const selectedTitles = selectedIds.map((id) => succ.todo[id]);
 
   return (
     <Container>
@@ -77,9 +78,53 @@ export default function Result() {
               </TodoCard>
             ))}
 
-            <SaveButton onPress={() => console.log('선택된 todo:', selectedIds)}>
+            <SaveButton
+              onPress={async () => {
+                if (!parsedResult || !selectedIds.length) return;
+                const selectedTodos = selectedIds.map((id, idx) => ({
+                        id: idx + 1,
+                        date: '2025.08.03', // 혹은 현재 날짜
+                        title: succ.todo[id], // ⬅️ 바로 succ.todo 에서 꺼냄
+                        completed: false,
+                      }));
+
+
+
+                const selectedCatas = selectedIds.map((id) => succ.todo_cata[id]);
+
+                const payload = {
+                      category,
+                      title,
+                      succ: {
+                        description: succ.description,
+                        todo: selectedTodos.map(t => t.title), // 백엔드 저장용
+                        todo_cata: selectedCatas,
+                      },
+                      fail,
+                    };
+
+                try {
+                  const response = await axios.post(
+                    'https://port-0-trauma-backend-mdueo4dva1d77ce5.sel5.cloudtype.app/db/',
+                    payload
+                  );
+                  console.log('저장 성공:', response.data);
+                    console.log('넘길 ToDos:', selectedTodos);
+                    router.push({
+                        pathname: '/todo-calendar',
+                        params: {
+                          todos: JSON.stringify(selectedTodos), // ✅ 정확하게 전달
+                        },
+                      });
+                    } catch (error) {
+                      console.error('저장 실패:', error);
+                      alert('저장 중 오류가 발생했어요. 다시 시도해 주세요.');
+                    }
+                  }}
+            >
               <SaveButtonText>To-do-List 저장하기</SaveButtonText>
             </SaveButton>
+
 
             <Section>
               <Title>당신은 이런 감정들을 이겨냈어요</Title>

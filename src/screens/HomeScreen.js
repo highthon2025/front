@@ -87,13 +87,23 @@ export default function HomeScreen() {
     });
   };
 
+  const goToCalendar = () => {
+    router.push('/todo-calendar');
+  };
+
   const weekDays = getWeekDays();
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <StatusBar barStyle="dark-content" backgroundColor="#F5F6F8" />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <DateNavigator currentDate={currentDate} onPrev={goToPreviousDay} onNext={goToNextDay} formatDate={formatDate} />
+        <DateNavigator 
+          currentDate={currentDate} 
+          onPrev={goToPreviousDay} 
+          onNext={goToNextDay} 
+          formatDate={formatDate}
+          onDatePress={goToCalendar}
+        />
         <WeekDays weekDays={weekDays} onSelectDay={goToSpecificDay} />
         <Greeting />
         <PastRecords categories={categories} />

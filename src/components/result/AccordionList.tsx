@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import styled from '@emotion/native';
 
+interface StyledProps {
+  active?: boolean;
+}
+
 const Container = styled.ScrollView`
   flex: 1;
   background-color: #fff;
@@ -21,7 +25,7 @@ const AccordionItem = styled.View`
   margin-bottom: 10px;
 `;
 
-const AccordionHeader = styled(TouchableOpacity)`
+const AccordionHeader = styled(TouchableOpacity)<StyledProps>`
   background-color: ${({ active }) => (active ? '#fff4f0' : '#f9f9f9')};
   border: 1px solid ${({ active }) => (active ? '#ff7a4e' : '#eee')};
   border-radius: 8px;
@@ -31,12 +35,12 @@ const AccordionHeader = styled(TouchableOpacity)`
   justify-content: space-between;
 `;
 
-const AccordionTitle = styled.Text`
+const AccordionTitle = styled.Text<StyledProps>`
   color: ${({ active }) => (active ? '#ff4f1f' : '#444')};
   font-weight: ${({ active }) => (active ? 'bold' : 'normal')};
 `;
 
-const Icon = styled.Text`
+const Icon = styled.Text<StyledProps>`
   font-size: 18px;
   color: ${({ active }) => (active ? '#ff4f1f' : '#999')};
 `;

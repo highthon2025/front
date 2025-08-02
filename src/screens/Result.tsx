@@ -193,12 +193,22 @@ const selectedTitles = selectedIds.map((id) => succ.todo[id]);
             <Section>
               <Title>{userName || '사용자'}님은 현재 이러한{'\n'}두려움을 극복한 상태예요!</Title>
               <EmotionWrapper>
-                {fail.reason.map((text: string, idx: number) => (
-                  <EmotionCard key={idx}>
-                    <EmotionText>{text}</EmotionText>
-                    <Label type="습관">습관</Label>
-                  </EmotionCard>
-                ))}
+                {Array.isArray(fail.reason) 
+                  ? fail.reason.map((text: string, idx: number) => (
+                      <EmotionCard key={idx}>
+                        <EmotionText>{text}</EmotionText>
+                        <Label type="습관">습관</Label>
+                      </EmotionCard>
+                    ))
+                  : typeof fail.reason === 'object' && fail.reason
+                  ? Object.entries(fail.reason).map(([key, value], idx) => (
+                      <EmotionCard key={idx}>
+                        <EmotionText>{key}: {String(value)}%</EmotionText>
+                        <Label type="습관">습관</Label>
+                      </EmotionCard>
+                    ))
+                  : null
+                }
               </EmotionWrapper>
             </Section>
           </>
@@ -209,12 +219,22 @@ const selectedTitles = selectedIds.map((id) => succ.todo[id]);
             <Section>
               <Title>{userName || '사용자'}님의 문제 원인</Title>
               <EmotionWrapper>
-                {fail.reason.map((text: string, idx: number) => (
-                  <EmotionCard key={idx}>
-                    <EmotionText>{text}</EmotionText>
-                    <Label type="습관">습관</Label>
-                  </EmotionCard>
-                ))}
+                {Array.isArray(fail.reason) 
+                  ? fail.reason.map((text: string, idx: number) => (
+                      <EmotionCard key={idx}>
+                        <EmotionText>{text}</EmotionText>
+                        <Label type="습관">습관</Label>
+                      </EmotionCard>
+                    ))
+                  : typeof fail.reason === 'object' && fail.reason
+                  ? Object.entries(fail.reason).map(([key, value], idx) => (
+                      <EmotionCard key={idx}>
+                        <EmotionText>{key}: {String(value)}%</EmotionText>
+                        <Label type="습관">습관</Label>
+                      </EmotionCard>
+                    ))
+                  : null
+                }
               </EmotionWrapper>
             </Section>
 

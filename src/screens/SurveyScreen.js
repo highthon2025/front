@@ -15,6 +15,7 @@ import { ProgressIndicator } from '../components/survey/ProgressIndicator';
 import { QuestionSection } from '../components/survey/QuestionSection';
 import { OptionList } from '../components/survey/OptionList';
 import { NextButton } from '../components/survey/NextButton';
+import LoadingScreen from '../components/LoadingScreen';
 
 export default function SurveyScreen() {
   const { userName } = useUser();
@@ -25,6 +26,7 @@ export default function SurveyScreen() {
   const [customGoal, setCustomGoal] = useState('');
   const [customTrauma, setCustomTrauma] = useState('');
   const [customSituation, setCustomSituation] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const firstStepOptions = [
     '직접작성 할래요!',
@@ -60,6 +62,8 @@ export default function SurveyScreen() {
       setSelectedSituation(null);
       setCustomSituation('');
     } else if (currentStep === 3) {
+      setIsLoading(true); // 로딩 시작
+      
       const goalValue = selectedOption === 0 ? customGoal : firstStepOptions[selectedOption];
       const traumaValue = selectedTrauma === 0 ? customTrauma : secondStepOptions[selectedTrauma];
       const situationValue = selectedSituation === 0 ? customSituation : thirdStepOptions[selectedSituation];
@@ -89,9 +93,24 @@ export default function SurveyScreen() {
         const resultData = response.data;
         console.log('응답 데이터:', resultData);
         
+        // 응답 데이터 구조 검증 및 정규화
+        const normalizedData = {
+          ...resultData,
+          fail: {
+            ...resultData.fail,
+            // reason이 객체인 경우 배열로 변환
+            reason: Array.isArray(resultData.fail?.reason) 
+              ? resultData.fail.reason
+              : typeof resultData.fail?.reason === 'object' && resultData.fail?.reason
+              ? Object.keys(resultData.fail.reason)
+              : ['알 수 없는 원인']
+          }
+        };
+        
+        setIsLoading(false); // 로딩 종료
         router.push({
           pathname: '/Result',
-          params: { result: JSON.stringify(resultData) },
+          params: { result: JSON.stringify(normalizedData) },
         });
       } catch (error) {
         console.error('POST 실패:', error);
@@ -114,10 +133,13 @@ export default function SurveyScreen() {
           }
         };
         
+        setIsLoading(false); // 로딩 종료
         router.push({
           pathname: '/Result',
           params: { result: JSON.stringify(mockData) },
         });
+      } finally {
+        setIsLoading(false); // 모든 경우에 로딩 종료 보장
       }
     }
   };
@@ -144,6 +166,11 @@ export default function SurveyScreen() {
   };
 
   const handleBackPress = () => router.back();
+
+  // 로딩 중일 때 로딩 화면 표시
+  if (isLoading) {
+    return <LoadingScreen message="답변을 분석하고 있습니다..." />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -180,13 +207,20 @@ export default function SurveyScreen() {
         <NextButton
           onPress={handleNext}
           disabled={
-            currentStep === 1
+            isLoading || // 로딩 중일 때 비활성화
+            (currentStep === 1
               ? selectedOption === null || (selectedOption === 0 && customGoal.trim() === '')
               : currentStep === 2
               ? selectedTrauma === null || (selectedTrauma === 0 && customTrauma.trim() === '')
-              : selectedSituation === null || (selectedSituation === 0 && customSituation.trim() === '')
+              : selectedSituation === null || (selectedSituation === 0 && customSituation.trim() === ''))
           }
-          title={currentStep === 3 ? '선택완료' : '다음으로'}
+          title={
+            isLoading 
+              ? '분석 중...' 
+              : currentStep === 3 
+              ? '선택완료' 
+              : '다음으로'
+          }
         />
       </View>
     </SafeAreaView>

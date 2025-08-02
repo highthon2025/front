@@ -3,6 +3,13 @@ import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } fr
 import { router, useLocalSearchParams } from 'expo-router';
 import { exportTodosToICS } from '../utils/exportICS';
 
+interface Todo {
+  id: string;
+  title: string;
+  date: string;
+  repeat?: string;
+}
+
 
 export default function TodoCalendarScreen() {
   const [selectedDate, setSelectedDate] = useState(3); // 기본적으로 2일 선택
@@ -111,11 +118,17 @@ const [todoData, setTodoData] = useState(groupedTodos);
   };
 
   const handleExport = async () => {
-  const allTodos = Object.values(todoData).flat();
-  await exportTodosToICS(allTodos);
-  setIsExported(true);
-  setTimeout(() => setIsExported(false), 3000);
-};
+    const allTodos = Object.values(todoData).flat().map(todo => {
+      const todoItem = todo as Todo;
+      return {
+        title: todoItem.title || '',
+        date: todoItem.date || ''
+      };
+    });
+    await exportTodosToICS(allTodos);
+    setIsExported(true);
+    setTimeout(() => setIsExported(false), 3000);
+  };
 
   // 선택된 날짜의 할일 가져오기
   const getSelectedDateTodos = () => {

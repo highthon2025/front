@@ -73,7 +73,7 @@ const EmojiSadFace = () => {
     </svg>
   `;
 
-  return <SvgXml xml={svgMarkup} width="41" height="41" />;
+  return <SvgXml xml={svgMarkup} width="50" height="50" />;
 };
 
 export default EmojiSadFace;

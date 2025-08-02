@@ -1,13 +1,15 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-export default function DateNavigator({ currentDate, onPrev, onNext, formatDate }) {
+export default function DateNavigator({ currentDate, onPrev, onNext, formatDate, onDatePress }) {
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={onPrev} style={styles.navButton}>
         <Text style={styles.navArrow}>‹</Text>
       </TouchableOpacity>
-      <Text style={styles.currentDate}>{formatDate(currentDate)}</Text>
+      <TouchableOpacity onPress={onDatePress}>
+        <Text style={styles.currentDate}>{formatDate(currentDate)}</Text>
+      </TouchableOpacity>
       <TouchableOpacity onPress={onNext} style={styles.navButton}>
         <Text style={styles.navArrow}>›</Text>
       </TouchableOpacity>

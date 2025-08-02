@@ -1,56 +1,61 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from '@emotion/native';
+import { useLocalSearchParams } from 'expo-router';
 import Header from '../components/result/Header';
 import Progress from '../components/result/Progress';
 import NProgress from '../components/result/NProgress';
 import AccordionList from '../components/result/AccordionList';
 
-// To-do 리스트 데이터 (id, text, type)
-const todoItems = [
-  { id: 1, text: '관련 핀터레스트 자료 10개 수집', type: '진로' },
-  { id: 2, text: 'B매거진 전공서적 10P 읽기', type: '진로' },
-];
 
-// Label 타입별 배경색 상수
 const LABEL_BG_COLORS = {
-  진로: '#FFF57F',
-  습관: '#FFC2C2',
+  기술: '#FFF57F',
+  개발: '#FFC2C2',
+  협업: '#A1E3D8',
+  역량: '#FDCEDF',
+  네트워킹: '#D3C0F9',
+  성찰: '#FFD6A5',
 };
 
-// TodoCard 선택 여부별 배경/테두리 색상
 const CARD_BG_COLOR_SELECTED = '#FFC2C2';
 const CARD_BORDER_COLOR_SELECTED = '#FF7733';
 const CARD_BG_COLOR_DEFAULT = '#fff';
 
-// EmotionCard 높이 및 마진 변수
 const EMOTION_CARD_HEIGHT = 160;
 const EMOTION_CARD_MARGIN_BOTTOM = 16;
 
-const Result = () => {
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [activeTab, setActiveTab] = useState('hope');
+export default function Result() {
+  const params = useLocalSearchParams();
+  const [activeTab, setActiveTab] = useState<'hope' | 'fail'>('hope');
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-  const toggleSelect = (id) => {
+  const parsedResult = useMemo(() => {
+    try {
+      return JSON.parse(params.result as string);
+    } catch (e) {
+      return null;
+    }
+  }, [params]);
+
+  if (!parsedResult) {
+    return <Container><ErrorText>결과 데이터를 불러오지 못했어요.</ErrorText></Container>;
+  }
+
+  const { title, category, succ, fail } = parsedResult;
+
+  const toggleSelect = (id: number) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
-  };
-
-  const onSavePress = () => {
-    console.log('저장할 To-do IDs:', selectedIds);
   };
 
   return (
     <Container>
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
       <ContentScrollView contentContainerStyle={{ padding: 20 }}>
-        
-
         {activeTab === 'hope' ? (
           <>
-            <Progress />
+            <Progress description={succ.description} />
             <Divider />
-            {/* 희망적 탭 내용 */}
             <Section>
               <Title>To-do List</Title>
               <Description>
@@ -59,82 +64,58 @@ const Result = () => {
               </Description>
             </Section>
 
-            {todoItems.map(({ id, text, type }) => (
+            {succ.todo.map((text: string, idx: number) => (
               <TodoCard
-                key={id}
-                highlighted={selectedIds.includes(id)}
-                onPress={() => toggleSelect(id)}
-                bgColor={selectedIds.includes(id) ? CARD_BG_COLOR_SELECTED : CARD_BG_COLOR_DEFAULT}
-                borderColor={selectedIds.includes(id) ? CARD_BORDER_COLOR_SELECTED : 'transparent'}
+                key={idx}
+                highlighted={selectedIds.includes(idx)}
+                onPress={() => toggleSelect(idx)}
+                bgColor={selectedIds.includes(idx) ? CARD_BG_COLOR_SELECTED : CARD_BG_COLOR_DEFAULT}
+                borderColor={selectedIds.includes(idx) ? CARD_BORDER_COLOR_SELECTED : 'transparent'}
               >
                 <TodoText>{text}</TodoText>
-                <Label type={type}>{type}</Label>
+                <BigLabel type={succ.todo_cata[idx]}>{succ.todo_cata[idx]}</BigLabel>
               </TodoCard>
             ))}
 
-            <SaveButton onPress={onSavePress} activeOpacity={0.8}>
+            <SaveButton onPress={() => console.log('선택된 todo:', selectedIds)}>
               <SaveButtonText>To-do-List 저장하기</SaveButtonText>
             </SaveButton>
-            <Message>
-              민수님은 현재 이러한{'\n'}
-              두려움을 극복한 상태에요!
-            </Message>
 
-            <EmotionWrapper>
-              <EmotionCard>
-                <EmotionText>마감기한</EmotionText>
-                <Label type="습관">습관</Label>
-              </EmotionCard>
-              <EmotionCard>
-                <EmotionText>성적</EmotionText>
-                <Label type="진로">진로</Label>
-              </EmotionCard>
-              <EmotionCard>
-                <EmotionText>피드백</EmotionText>
-                <Label type="진로">진로</Label>
-              </EmotionCard>
-              <EmotionCard>
-                <EmotionText>결정</EmotionText>
-                <Label type="습관">습관</Label>
-              </EmotionCard>
-            </EmotionWrapper>
+            <Section>
+              <Title>당신은 이런 감정들을 이겨냈어요</Title>
+              <EmotionWrapper>
+                {fail.reason.map((text: string, idx: number) => (
+                  <EmotionCard key={idx}>
+                    <EmotionText>{text}</EmotionText>
+                    <Label type="습관">습관</Label>
+                  </EmotionCard>
+                ))}
+              </EmotionWrapper>
+            </Section>
           </>
         ) : (
           <>
-            <NProgress />
+            <NProgress description={fail.description} />
             <Divider />
-            <Message>
-              민수님은 현재{'\n'}
-              두려워하는 원인이에요!
-            </Message>
-            <EmotionWrapper>
-              <EmotionCard>
-                <EmotionText>마감기한</EmotionText>
-                <Label type="습관">습관</Label>
-              </EmotionCard>
-              <EmotionCard>
-                <EmotionText>성적</EmotionText>
-                <Label type="진로">진로</Label>
-              </EmotionCard>
-              <EmotionCard>
-                <EmotionText>피드백</EmotionText>
-                <Label type="진로">진로</Label>
-              </EmotionCard>
-              <EmotionCard>
-                <EmotionText>결정</EmotionText>
-                <Label type="습관">습관</Label>
-              </EmotionCard>
-            </EmotionWrapper>
-            <AccordionList />
+            <Section>
+              <Title>당신의 문제 원인</Title>
+              <EmotionWrapper>
+                {fail.reason.map((text: string, idx: number) => (
+                  <EmotionCard key={idx}>
+                    <EmotionText>{text}</EmotionText>
+                    <Label type="습관">습관</Label>
+                  </EmotionCard>
+                ))}
+              </EmotionWrapper>
+            </Section>
+
+            <AccordionList action_title={fail.action_title} action_desc={fail.action_desc} />
           </>
         )}
       </ContentScrollView>
     </Container>
   );
-};
-
-
-export default Result;
+}
 
 const Container = styled.View`
   flex: 1;
@@ -170,6 +151,7 @@ const TodoCard = styled.TouchableOpacity`
   width: 295px;
   height: 137px;
   margin-top: 12px;
+  elevation: 5;
   left: 23px;
 `;
 
@@ -179,11 +161,25 @@ const TodoText = styled.Text`
   margin-bottom: 8px;
 `;
 
+const BigLabel = styled.Text`
+  background-color: ${(props) => LABEL_BG_COLORS[props.type] || '#ccc'};
+  color: #000;
+  padding: 4px 8px;
+  top: 90%;
+  left: 5%;
+  position: absolute;
+  font-size: 12px;
+  border-radius: 6px;
+  align-self: flex-start;
+`;
+
 const Label = styled.Text`
   background-color: ${(props) => LABEL_BG_COLORS[props.type] || '#ccc'};
   color: #000;
   padding: 4px 8px;
-  top: 40%;
+  top: 90%;
+  left: 10%;
+  position: absolute;
   font-size: 12px;
   border-radius: 6px;
   align-self: flex-start;

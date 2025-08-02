@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Text, View, TouchableOpacity, ScrollView } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import styled from '@emotion/native';
 
 const Container = styled.ScrollView`
@@ -52,26 +51,24 @@ const Description = styled.Text`
   font-size: 14px;
 `;
 
-const data = [
-  {
-    id: 1,
-    title: '아무것도 안하고 잡자는 행동',
-    description:
-      '이러한 행동은 민수님의 성공적인 미래를 위한 활동에 전혀 도움이 되지않은 행동이에요! 아무것도 안하고 잠을 자는 것 보다는 미래에 도움이 되는 책 한권을 자기 전에 읽는 것이 어때요?',
-  },
-  { id: 2, title: '아무것도 안하고 잡자는 행동', description: '이러한 행동은 민수님의 성공적인 미래를 위한 활동에 전혀 도움이 되지않은 행동이에요! 아무것도 안하고 잠을 자는 것 보다는 미래에 도움이 되는 책 한권을 자기 전에 읽는 것이 어때요?', },
-  { id: 3, title: '아무것도 안하고 잡자는 행동' },
-  { id: 4, title: '아무것도 안하고 잡자는 행동' },
-  { id: 5, title: '아무것도 안하고 잡자는 행동' },
-  { id: 6, title: '아무것도 안하고 잡자는 행동' },
-];
+type Props = {
+  action_title: string[];
+  action_desc: string[];
+};
 
-const AccordionList = () => {
+const AccordionList = ({ action_title, action_desc }: Props) => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const toggleIndex = (index: number) => {
     setActiveIndex(prev => (prev === index ? null : index));
   };
+
+  // props로 받은 배열을 data 형태로 변환
+  const data = action_title.map((title, index) => ({
+    id: index + 1,
+    title,
+    description: action_desc[index] ?? '',
+  }));
 
   return (
     <Container>

@@ -32,7 +32,8 @@ export default function TodoList({ items, onToggleComplete }) {
           </View>
           <View style={styles.content}>
             {item.time ? <Text style={styles.time}>{item.time}</Text> : null}
-            <Text style={[styles.title, item.completed && styles.completed]}>{item.title}</Text>
+            {/* 여기를 item.title에서 item.todo_text로 변경 */}
+            <Text style={[styles.title, item.completed && styles.completed]}>{item.todo_text}</Text>
           </View>
           <TouchableOpacity 
             style={[styles.checkbox, item.completed && styles.checkboxCompleted]}

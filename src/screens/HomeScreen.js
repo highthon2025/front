@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
-import { View, ScrollView, StatusBar } from 'react-native';
+// src/screens/HomeScreen.js
+import React, { useState, useEffect } from 'react';
+import { View, ScrollView, StatusBar, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
+import axios from 'axios';
+
+// Components
 import DateNavigator from '../components/DateNavigator';
 import WeekDays from '../components/WeekDays';
 import Greeting from '../components/Greeting';
@@ -9,22 +13,54 @@ import ScheduleHeader from '../components/ScheduleHeader';
 import TodoList from '../components/TodoList';
 import FloatingButton from '../components/FloatingButton';
 
-const categories = [
-  { id: 1, title: "카테고리", subtitle: "제목", date: "2025.07.31", color: "#FF6122" },
-  { id: 2, title: "카테고리", subtitle: "제목", date: "2025.07.31", color: "#FF8D60" },
-  { id: 3, title: "카테고리", subtitle: "제목", date: "2025.07.31", color: "#FFB399" }
-];
+// 색상 배열 (카테고리 카드용)
+const CATEGORY_COLORS = ['#FF6122', '#FF8D60', '#FFB399', '#FFD6A5', '#A1E3D8'];
 
 export default function HomeScreen() {
   const [selectedDay, setSelectedDay] = useState(2);
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 7, 2)); // 8월 2일
-  const [todoItems, setTodoItems] = useState([
-    { id: 1, title: "핀터레스트로 관련 레퍼런스 10개 수집하기", time: "AM 08:20", completed: true },
-    { id: 2, title: "핀터레스트로 관련 레퍼런스 10개 수집하기", time: "AM 08:20", completed: true },
-    { id: 3, title: "핀터레스트로 관련 레퍼런스 10개 수집하기", time: "AM 08:20", completed: true },
-    { id: 4, title: "핀터레스트로 관련 레퍼런스 10개 A 집안일", time: "", completed: false }
-  ]);
+  const [currentDate, setCurrentDate] = useState(new Date(2025, 7, 2)); // 2025년 8월 2일
+  const [categories, setCategories] = useState([]);
+  const [todoItems, setTodoItems] = useState([]);
 
+  // 최신 기록 데이터 + todo 불러오기
+  useEffect(() => {
+    const fetchLatestData = async () => {
+      try {
+        const response = await axios.get(
+          'https://port-0-trauma-backend-mdueo4dva1d77ce5.sel5.cloudtype.app/db/latest'
+        );
+        const data = response.data;
+
+        // categories 포맷팅 (8글자 자르기)
+        const formattedCategories = data.map((item, index) => ({
+          id: item.id,
+          title: item.category.slice(0, 8),
+          subtitle: item.title.slice(0, 8),
+          date: item.created_at.split('T')[0].replace(/-/g, '.'),
+          color: CATEGORY_COLORS[index % CATEGORY_COLORS.length],
+        }));
+        setCategories(formattedCategories);
+        console.log(data)
+        // 첫 번째 항목 todos 포맷팅 (필요하면 변경)
+        if (data.length > 0) {
+          const formattedTodos = data[0].todos.map(todo => ({
+            id: todo.id,
+            todo_text: todo.todo_text || todo.title || '', // API 필드명 맞게 수정
+            todo_category: todo.todo_category || '',
+            order_seq: todo.order_seq || 0,
+            completed: false, // API에 완료 여부가 있으면 맞게 처리
+          }));
+          setTodoItems(formattedTodos);
+        }
+      } catch (err) {
+        console.error('데이터 가져오기 실패:', err);
+      }
+    };
+
+    fetchLatestData();
+  }, []);
+
+  // 날짜 포맷 (YYYY.MM.DD)
   const formatDate = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -32,16 +68,16 @@ export default function HomeScreen() {
     return `${year}.${month}.${day}`;
   };
 
+  // To-do 완료 토글
   const toggleTodoComplete = (todoId) => {
-    setTodoItems(prevItems => 
-      prevItems.map(item => 
-        item.id === todoId 
-          ? { ...item, completed: !item.completed }
-          : item
+    setTodoItems(prevItems =>
+      prevItems.map(item =>
+        item.id === todoId ? { ...item, completed: !item.completed } : item
       )
     );
   };
 
+  // 요일 네비게이션 함수들
   const goToPreviousDay = () => {
     const newDate = new Date(currentDate);
     newDate.setDate(newDate.getDate() - 1);
@@ -69,6 +105,7 @@ export default function HomeScreen() {
     setSelectedDay(date.getDate());
   };
 
+  // 주간 날짜 배열 생성
   const getWeekDays = () => {
     const baseDate = new Date(currentDate);
     const currentDay = baseDate.getDate();
@@ -87,27 +124,28 @@ export default function HomeScreen() {
     });
   };
 
+  const weekDays = getWeekDays();
+
+  // 캘린더 이동
   const goToCalendar = () => {
     router.push('/todo-calendar');
   };
-
-  const weekDays = getWeekDays();
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F6F8' }}>
       <StatusBar barStyle="dark-content" backgroundColor="#F5F6F8" />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <DateNavigator 
-          currentDate={currentDate} 
-          onPrev={goToPreviousDay} 
-          onNext={goToNextDay} 
+        <DateNavigator
+          currentDate={currentDate}
+          onPrev={goToPreviousDay}
+          onNext={goToNextDay}
           formatDate={formatDate}
           onDatePress={goToCalendar}
         />
         <WeekDays weekDays={weekDays} onSelectDay={goToSpecificDay} />
         <Greeting />
         <PastRecords categories={categories} />
-        <ScheduleHeader title='민수님의 "OOO"을 위해서' date={formatDate(currentDate)} />
+        <ScheduleHeader title={`민수님의 "OOO"을 위해서`} date={formatDate(currentDate)} />
         <TodoList items={todoItems} onToggleComplete={toggleTodoComplete} />
       </ScrollView>
       <FloatingButton onPress={() => router.push('/survey')} />

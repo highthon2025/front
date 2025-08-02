@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 
-export const OptionList = ({ options, selectedOption, onOptionSelect }) => {
+export const MultiOptionList = ({ options, selectedOptions, onOptionSelect }) => {
   return (
     <View style={styles.optionsContainer}>
       {options.map((option, index) => (
@@ -9,14 +9,14 @@ export const OptionList = ({ options, selectedOption, onOptionSelect }) => {
           key={index}
           style={[
             styles.optionButton,
-            selectedOption === index && styles.selectedOption
+            selectedOptions.includes(index) && styles.selectedOption
           ]}
           onPress={() => onOptionSelect(index)}
         >
           <Text 
             style={[
               styles.optionText,
-              selectedOption === index && styles.selectedOptionText
+              selectedOptions.includes(index) && styles.selectedOptionText
             ]}
           >
             {option}

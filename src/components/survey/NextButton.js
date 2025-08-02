@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nextButtonActive: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF6122',
   },
   nextButtonText: {
     fontSize: 16,

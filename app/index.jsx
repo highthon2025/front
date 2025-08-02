@@ -1,10 +1,9 @@
-// app/index.tsx 예시
 import React from 'react';
 import { View } from 'react-native';
-import HomeScreen from './src/screens/HomeScreen';
 import Result from './src/screens/Result';
+import HomeScreen from '../src/screens/HomeScreen';
 
-export default function App() {
+export default function Index() {
   return (
     <View style={{ flex: 1 }}>
       <Result />
